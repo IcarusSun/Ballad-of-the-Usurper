@@ -1,0 +1,66 @@
+using UnityEngine;
+using System.Collections;
+
+public class PatronScript : MonoBehaviour {
+
+	public float maxSpeed;
+	public bool jump = false;
+	public float jumpForce = 1000f;			// Amount of force added when the player jumps.
+	bool facingRight = true;
+	
+	bool grounded = false;			   		// Whether or not the player is grounded.
+	public Transform groundCheck;			// A position marking where to check if the player is grounded.
+	float groundRadius = 0.2f;
+	public LayerMask whatIsGround;
+
+	bool attacking = false;					// Whether or not the player is attacking
+	Animator anim;
+
+	void Start ()
+	{
+		anim = GetComponent<Animator> ();
+	}
+
+	void Update()
+	{
+//		 If the jump button is pressed and the player is grounded then the player should jump.
+		if(Input.GetButtonDown("Jump") && grounded)
+			jump = true;
+	}
+
+	// FixedUpdate is for physics, called once per physics time stamp.
+	void FixedUpdate () {
+	//Movement stuff
+		grounded = Physics2D.OverlapCircle (groundCheck.position, groundRadius, whatIsGround);
+		anim.SetBool ("Ground", grounded);
+
+//		Combat stuff + Movement, Check whether attack button has been pressed and if player is currently attacking.
+		Debug.Log (anim.layerCount);
+		attacking = anim.GetCurrentAnimatorStateInfo (9).IsTag("Attacking");
+		if (Input.GetButtonDown ("Attack")){
+			anim.SetBool ("Attacking", attacking);
+			maxSpeed = 0;
+		}
+		else {
+			attacking = false;
+			maxSpeed = 0.7f;
+			float move = Input.GetAxis ("Horizontal");
+			anim.SetFloat ("Speed", Mathf.Abs (move));
+			rigidbody2D.velocity = new Vector2 (move * maxSpeed, rigidbody2D.velocity.y);
+			anim.SetFloat ("Speed", move);
+			
+			if (move > 0 && !facingRight)
+				Flip ();
+			else if (move < 0 && facingRight)
+				Flip ();
+		}
+	}
+
+	void Flip()
+	{
+		facingRight = !facingRight;
+		Vector3 theScale = transform.localScale;
+		theScale.x *= -1;
+		transform.localScale = theScale;
+	}
+}
