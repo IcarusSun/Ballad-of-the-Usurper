@@ -12,7 +12,6 @@ public class PatronScript : MonoBehaviour {
 	public Transform groundCheck;			// A position marking where to check if the player is grounded.
 	float groundRadius = 0.2f;
 	public LayerMask whatIsGround;
-
 	bool attacking = false;					// Whether or not the player is attacking
 	Animator anim;
 
